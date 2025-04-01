@@ -19,9 +19,9 @@ app.get("/todos", async (req, res) => {
 });
 
 app.post("/todos" , async (req,res)=> {
-    const {title,description,priority,deadline}=req.body;
+    const {title,description,priority,deadline,situation,subtasks}=req.body;
 
-    if(!title || !description || !deadline || ! priority){
+    if(!title || !description || !deadline || ! priority || !situation){
         res.status(400).json({error:"Please fill all fields!"});
         return;
     }
@@ -33,6 +33,8 @@ app.post("/todos" , async (req,res)=> {
                 description,
                 priority,
                 deadline: new Date(deadline),
+                situation,
+                subtasks
             },
         });
         res.status(201).json(newTodo);
@@ -52,10 +54,22 @@ app.delete("/todos/:id", async (req, res) => {
       res.status(500).json({ error: "Silinemedi" });
     }
   });
+  
+  app.get("/details/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    try {
+      const todo = await prisma.todo.findUnique({ where: { id } });
+      res.json(todo);
+    } catch (err) {
+      console.error("Detay getirme hatası:", err);
+      res.status(500).json({ error: "Detay alınamadı." });
+    }
+  });
+  
 
   app.put("/todos/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const { title, description, priority, deadline } = req.body;
+    const { title, description, priority, deadline,situation,subtasks } = req.body;
   
     if (!title || !description || !priority || !deadline) {
         res.status(400).json({ error: "Tüm alanlar zorunlu." });
@@ -65,7 +79,7 @@ app.delete("/todos/:id", async (req, res) => {
     try {
       const updated = await prisma.todo.update({
         where: { id },
-        data: { title, description, priority, deadline: new Date(deadline) }
+        data: { title, description, priority, deadline: new Date(deadline),situation,subtasks }
       });
       res.json(updated);
     } catch (err) {
