@@ -27,11 +27,29 @@ export default function TodoDetails() {
     fetchTodo();
   }, [id]);
 
-  const toggleSubtask = (index: number) => {
+  const toggleSubtask = async (index: number) => {
     const updated = [...todo.subtasks];
     updated[index].done = !updated[index].done;
-    setTodo({ ...todo, subtasks: updated });
+  
+    try {
+      const res = await fetch(`http://localhost:3001/todos/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...todo,
+          subtasks: updated,
+        }),
+      });
+  
+      if (!res.ok) throw new Error("Subtask durumu güncellenemedi");
+  
+      const updatedTodo = await res.json();
+      setTodo(updatedTodo);
+    } catch (err) {
+      console.error("Toggle hatası:", err);
+    }
   };
+  
 
   const handleAddSubtask = async () => {
     if (!newSubtask.trim()) return;
@@ -90,34 +108,38 @@ export default function TodoDetails() {
       <h1 className="text-xl font-bold mb-1 text-center">{todo?.title}</h1>
       <h2 className="text-lg text-sky-800 mb-2 font-light text-center">Subtasks</h2>
       {todo?.subtasks?.map((subtask: Subtask, index: number) => (
-      <div key={index} className=" px-4 py-4 bg-white border-b">
-        <div className="flex items-center gap-2">
-        <input
-          type="checkbox" className="w-4 h-4"
-          checked={subtask.done}
-          onChange={() => toggleSubtask(index)}
-        />
-        <span className={subtask.done ? "line-through text-gray-500" : ""}>
-          {subtask.text}
-        </span>
-        <div className="absolute top-5 right-5 h-full w-[3px] bg-gray-400 group-hover:w-20 transition-all duration-300 overflow-hidden z-10">
+  <div key={index} className="relative group flex items-center justify-between px-4 py-2 bg-white border-b">
+    
+    <div className="flex items-center gap-2">
+      <input
+        type="checkbox"
+        className="w-4 h-4"
+        checked={subtask.done}
+        onChange={() => toggleSubtask(index)}
+      />
+      <span className={subtask.done ? "line-through text-gray-500" : ""}>
+        {subtask.text}
+      </span>
+    </div>
+
+    <div className="absolute top-0 right-0 h-full w-[3px] bg-red-400 group-hover:w-20 transition-all duration-300 overflow-hidden z-10">
       <button
-        onClick={() => handleAddSubtask()}
-        className="w-full h-full text-xs text-white bg-red-700 hover:bg-red-800 opacity-0 group-hover:opacity-100 transition-all duration-300"
+        onClick={() => handleDeleteSubtask(index)}
+        className="w-full h-full text-xs text-white bg-red-600 hover:bg-red-700 opacity-0 group-hover:opacity-100 transition-all duration-300 text-end pr-2"
       >
         Delete
       </button>
     </div>
-      </div>
-      </div>
-    ))}
+  </div>
+))}
+
 
    
 {!isAdding ? (
   <>
     <button
       className="bg-sky-800 hover:bg-sky-600 text-white rounded
-      px-6 py-2 text-base w-[30%]"
+"
       onClick={() => setIsAdding(true)}
     >
       Add Subtask

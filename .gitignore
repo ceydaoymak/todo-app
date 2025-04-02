@@ -32,3 +32,10 @@ dist
 .DS_Store
 
 build
+backend/prisma/migrations/20250402114811_add_user_model/migration.sql
+.gitignore
+
+backend/prisma/migrations/20250402121154_remove_user_table/migration.sql
+backend/prisma/migrations/20250402121434_add_user_table/migration.sql
+
+backend/prisma/migrations/20250402112957_add_user_model/migration.sql

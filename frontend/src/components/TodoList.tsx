@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 export default function TodoTable() {
   const [isAdding, setIsAdding] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
+  const [searchQuery,setSearchQuery]=useState("");
   const navigate = useNavigate();
 
   const [newToDo, setNewToDo] = useState({
@@ -95,7 +96,12 @@ export default function TodoTable() {
     }
   };
 
-
+//Search Function
+  const filteredTodos = todos.filter((todo) =>
+    todo.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    todo.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  
 
   //Get to do function
   useEffect(() => {
@@ -163,9 +169,17 @@ export default function TodoTable() {
 
   return (
     <div className="flex flex-col w-full px-4 sm:px-6 lg:px-8">
-      <div className="text-center my-4">
-        <h1 className="text-sky-800 text-xl font-bold">To Do List</h1>
-      </div>
+    <div className="flex justify-between items-center mb-4 px-4 sm:px-6 lg:px-10">
+  <h1 className="text-sky-800 text-xl font-bold">To Do List</h1>
+
+  <input
+    type="text"
+    placeholder="Search to do.."
+    className="w-32 sm:w-40 md:w-48 lg:w-56 xl:w-64 border px-3 py-1 rounded text-sm"
+    onChange={(e)=> setSearchQuery(e.target.value)}
+    value={searchQuery}
+  />
+</div>
       <div className="overflow-x-auto">
         <table className="w-[88%] mx-auto table-fixed border rounded-lg">
           <thead className="bg-gray-100 text-sm text-gray-600">
@@ -179,7 +193,7 @@ export default function TodoTable() {
             </tr>
           </thead>
           <tbody>
-            {todos.map((todo) => (
+            {filteredTodos.map((todo) => (
               <tr
                 key={todo.id}
                 className="relative group border-t hover:bg-gray-50 transition"
@@ -278,7 +292,7 @@ export default function TodoTable() {
                     </td>
                     <td className="p-3 flex flex-wrap items-center justify-center gap-2">
                       <button
-                        className="px-3 py-1 bg-gray-400 hover:bg-gray-600 text-white rounded shadow transition text-sm"
+                        className="px-2 py-1 sm:px-3 sm:py-1 bg-gray-400 hover:bg-gray-600 text-white rounded shadow transition text-xs sm:text-sm md:text-base"
                         onClick={() => {
                           setEditId(todo.id);
                           setEditTodo(todo);
@@ -289,7 +303,7 @@ export default function TodoTable() {
                       </button>
                       <button
                         onClick={() => handleDelete(todo.id)}
-                        className="px-3 py-1 text-red-500 hover:text-red-700 rounded shadow transition text-sm"
+                        className="px-2 py-1 sm:px-3 sm:py-1 text-red-500 hover:text-red-700 rounded shadow transition text-xs sm:text-sm md:text-base"
                       >
                         Delete
                       </button>
@@ -307,6 +321,13 @@ export default function TodoTable() {
                 )}
               </tr>
             ))}
+            {filteredTodos.length===0 && !isAdding && (
+              <tr>
+                <td colSpan={6} className="text-center font-bold text-sky-800 py-4">
+                  No results found.
+                </td>
+              </tr>
+            )}
   
             {isAdding && (
               <tr className="border-t bg-gray-50">
@@ -386,9 +407,9 @@ export default function TodoTable() {
             setIsAdding(true);
             setEditId(null);
           }}
-          className="bg-gray-400 hover:bg-gray-600 text-white rounded shadow px-4 py-2 text-sm"
+          className="bg-sky-800 hover:bg-sky-600 text-white rounded shadow px-4 py-2 text-sm"
         >
-          ➕ Add todo
+          Add todo
         </button>
       </div>
     </div>

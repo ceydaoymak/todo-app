@@ -7,13 +7,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+  todos    Todo[] // Relationship with Todo table
+}
+
 model Todo {
   id          Int      @id @default(autoincrement())
   title       String
   description String
   priority    String
   deadline    DateTime
-  createdAt   DateTime @default(now())
   situation   String?
   subtasks    Json?    @db.Json
+  userId      Int      // Foreign key
+  user        User     @relation(fields: [userId], references: [id])
 }
