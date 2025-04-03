@@ -14,30 +14,37 @@ app.use(express.json());
 
 
 app.use(authRouter); 
+app.get("/todos", authenticateToken, async (req, res) => {
+  const userId = (req as any).user?.userId;
 
-app.get("/todos", async (req, res) => {
+  if (!userId) {
+     res.status(401).json({ error: "Unauthorized" });
+     return;
+  }
+
   try {
-    const todos = await prisma.todo.findMany();
+    const todos = await prisma.todo.findMany({
+      where: { userId },
+    });
     res.json(todos);
   } catch (err) {
-    console.error("HATA:", err);
-    res.status(500).json({ error: "Something went wrong" });
+    console.error("Todo çekme hatası:", err);
+    res.status(500).json({ error: "Veriler alınamadı." });
   }
 });
-
 
 app.post("/todos", authenticateToken, async (req, res) => {
   const { title, description, priority, deadline, situation, subtasks } = req.body;
   const userId = (req as any).user?.userId;
 
   if (!userId) {
-    res.status(401).json({ error: "User not authenticated." });
-    return;
+     res.status(401).json({ error: "User not authenticated." });
+     return;
   }
 
   if (!title || !description || !deadline || !priority || !situation) {
-    res.status(400).json({ error: "Please fill all fields!" });
-    return;
+     res.status(400).json({ error: "Please fill all fields!" });
+     return;
   }
 
   try {
@@ -53,11 +60,14 @@ app.post("/todos", authenticateToken, async (req, res) => {
       },
     });
 
-    res.status(201).json(newTodo);
+     res.status(201).json(newTodo);
+     return;
   } catch (err) {
     console.error("Post Error: ", err);
-    res.status(500).json({ error: "New to-do couldn't be added." });
+     res.status(500).json({ error: "New to-do couldn't be added." }); 
+     return;
   }
+
 });
 
 
@@ -75,8 +85,9 @@ app.delete("/todos/:id", async (req, res) => {
 
 app.get("/details/:id", async (req, res) => {
   const id = parseInt(req.params.id);
+  const userId = (req as any).user?.userId;
   try {
-    const todo = await prisma.todo.findUnique({ where: { id } });
+    const todo = await prisma.todo.findUnique({ where: { id, userId, }, });
     res.json(todo);
   } catch (err) {
     console.error("Detay getirme hatası:", err);

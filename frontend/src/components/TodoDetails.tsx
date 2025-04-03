@@ -55,7 +55,7 @@ export default function TodoDetails() {
     if (!newSubtask.trim()) return;
 
     const updatedSubtasks = [
-      ...todo.subtasks,
+      ...(todo.subtasks || []),
       { text: newSubtask.trim(), done: false },
     ];
 

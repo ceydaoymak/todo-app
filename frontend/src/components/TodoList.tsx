@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -7,13 +8,15 @@ export default function TodoTable() {
   const [editId, setEditId] = useState<number | null>(null);
   const [searchQuery,setSearchQuery]=useState("");
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
   const [newToDo, setNewToDo] = useState({
     title: "",
     description: "",
     priority: "Medium",
     deadline: "",
-    situation:"Pending"
+    situation:"Pending",
+    subtasks: [],
   });
 
   const [editTodo, setEditTodo] = useState({
@@ -51,6 +54,7 @@ export default function TodoTable() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(newToDo),
       });
@@ -66,7 +70,8 @@ export default function TodoTable() {
         description: "",
         priority: "Medium",
         deadline: "",
-        situation:""
+        situation:"",
+        subtasks:[],
       });
       setIsAdding(false);
     } catch (err) {
@@ -107,7 +112,12 @@ export default function TodoTable() {
   useEffect(() => {
     const fetchTodos = async () => {
       try {
-        const res = await fetch("http://localhost:3001/todos");
+        const token = localStorage.getItem("token");
+        const res = await fetch("http://localhost:3001/todos", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (!res.ok) throw new Error("Veriler alınamadı.");
         const data = await res.json();
         setTodos(data);
@@ -118,6 +128,7 @@ export default function TodoTable() {
   
     fetchTodos();
   }, []);
+  
 
 
 
@@ -164,7 +175,32 @@ export default function TodoTable() {
       console.error("Güncelleme hatası:", err);
       alert("Görev güncellenemedi.");
     }
+
+    useEffect(() => {
+      const fetchTodos = async () => {
+        const token = localStorage.getItem("token");
+    
+        try {
+          const res = await axios.get("http://localhost:3001/todos", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          setTodos(res.data);
+        } catch (err) {
+          console.error("Todo çekme hatası:", err);
+        }
+      };
+    
+      fetchTodos();
+    }, []);
+    
   };
+
+  const handleLogout=() =>{
+    localStorage.removeItem("token");
+    navigate("/login");
+  }
   
 
   return (
@@ -180,16 +216,18 @@ export default function TodoTable() {
     value={searchQuery}
   />
 </div>
-      <div className="overflow-x-auto">
-        <table className="w-[88%] mx-auto table-fixed border rounded-lg">
-          <thead className="bg-gray-100 text-sm text-gray-600">
-            <tr className="text-xs sm:text-sm">
+
+<div className="overflow-x-auto">
+<table className="w-[88%]  mx-auto table-fixed border rounded-lg">
+              <thead className="bg-gray-100 text-sm text-gray-600">
+          <tr className="text-xs sm:text-sm md:text-base">
               <th className="bg-gray-300 p-5">Title</th>
               <th className="bg-gray-300 p-5">Description</th>
               <th className="bg-gray-300 p-5">Priority</th>
               <th className="bg-gray-300 p-5">Situation</th>
               <th className="bg-gray-300 p-5">Deadline</th>
               <th className="bg-gray-300 p-5">Actions</th>
+               
             </tr>
           </thead>
           <tbody>
@@ -315,7 +353,7 @@ export default function TodoTable() {
                         View Details
                       </button>
                     </div>
-
+      
                     </td>
                   </>
                 )}
@@ -400,7 +438,6 @@ export default function TodoTable() {
           </tbody>
         </table>
       </div>
-  
       <div className="flex justify-end mt-4">
         <button
           onClick={() => {
@@ -411,7 +448,13 @@ export default function TodoTable() {
         >
           Add todo
         </button>
+
+        <button className="ml-2 bg-gray-200 text-blue"
+        onClick={handleLogout}>
+          Logout
+        </button>
       </div>
+      
     </div>
   );
   

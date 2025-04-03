@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
 const LoginPage = () => {
   const [Username, setUsername] = useState("");
   const [Password, setPassword] = useState("");
@@ -32,7 +31,7 @@ const LoginPage = () => {
 
       localStorage.setItem("token", response.data.token);
 
-      navigate("/");
+      navigate("/table");
     } catch (err) {
       setError("Invalid username or password.");
     }

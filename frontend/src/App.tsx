@@ -1,18 +1,30 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import TodoList from "./components/TodoList";
-import TodoDetails from "./components/TodoDetails"; 
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./components/LoginPage";
+import TodoTable from "./components/TodoList";
+import TodoDetails from "./components/TodoDetails";
+import PrivateRoute from "./components/PrivateRoute";
 
-function App() {
+export default function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
-      <Route path="/login" element={<LoginPage />} />
-        <Route path="/" element={<TodoList />} />
-        <Route path="/details/:id" element={<TodoDetails />} />
+        <Route path="/login" element={<LoginPage />} />
+        
+        <Route path="/table" element={
+          <PrivateRoute>
+            <TodoTable />
+          </PrivateRoute>
+        } />
+
+        <Route path="/details/:id" element={
+          <PrivateRoute>
+            <TodoDetails />
+          </PrivateRoute>
+        } />
+
+        {/* Root'u da yönlendirelim */}
+        <Route path="/" element={<Navigate to="/table" />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
-
-export default App;
