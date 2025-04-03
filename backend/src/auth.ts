@@ -11,6 +11,42 @@ const router = express.Router();
 const SECRET = process.env.SECRET_KEY || "default-secret-key";  
 
 // Register route
+
+/**
+ * @swagger
+ * /register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - password
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *       400:
+ *         description: User already exists
+ *       500:
+ *         description: Failed to create user
+ */
 router.post("/register", async (req, res) => {
   const { username, password } = req.body;
 
@@ -19,7 +55,15 @@ router.post("/register", async (req, res) => {
      res.status(400).json({ error: "User already exists." });
      return;
   }
+  if (username.length < 5) {
+ res.status(400).json({ error: "Username must be at least 5 characters long." });
+ return;
+  }
 
+  if (password.length < 8) {
+     res.status(400).json({ error: "Password must be at least 8 characters long." });
+     return;
+  }
   const hashedPassword = await bcrypt.hash(password, 10);
 
 
@@ -42,7 +86,43 @@ router.post("/register", async (req, res) => {
   }
 });
 
+
+
+
 // Login route
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: Login with existing credentials
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - password
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Logged in successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *       400:
+ *         description: Invalid credentials
+ */
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
@@ -67,6 +147,9 @@ router.post("/login", async (req, res) => {
 
   res.json({ token });
 });
+
+
+
 
 const authenticateToken = (req: any, res: any, next: any) => {
   const token = req.header("Authorization")?.replace("Bearer ", "");

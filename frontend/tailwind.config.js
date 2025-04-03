@@ -58,6 +58,7 @@ export default {
     	}
     },
     plugins: [require("tailwindcss-animate")],
+	darkMode: false,
   }
   
   

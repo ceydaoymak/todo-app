@@ -1,11 +1,13 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function TodoDetails() {
   const { id } = useParams();
   const [todo, setTodo] = useState<any>(null);
   const [newSubtask, setNewSubtask] = useState("");
   const [isAdding,setIsAdding] = useState(false);
+  const navigate = useNavigate();
 
   type Subtask = {
     text: string;
@@ -104,7 +106,12 @@ export default function TodoDetails() {
 
   return (
   <div className="w-screen h-screen flex items-center justify-center px-10 sm:px-13 md:px-20 lg:px-25 xl:px30">
-    <div className="bg-gray-100 p-6 rounded-lg shadow-lg w-full ">
+   
+    <div className="bg-gray-100 p-6 rounded-lg shadow-lg sm: w-[70%]  ">
+    <button className="bg-sky-800 text-white "
+    onClick={() => navigate("/table")}>Back
+      
+      </button>
       <h1 className="text-xl font-bold mb-1 text-center">{todo?.title}</h1>
       <h2 className="text-lg text-sky-800 mb-2 font-light text-center">Subtasks</h2>
       {todo?.subtasks?.map((subtask: Subtask, index: number) => (
@@ -122,10 +129,10 @@ export default function TodoDetails() {
       </span>
     </div>
 
-    <div className="absolute top-0 right-0 h-full w-[3px] bg-red-400 group-hover:w-20 transition-all duration-300 overflow-hidden z-10">
+    <div className="absolute top-0 right-0 h-full w-[6px] bg-red-800 hover:w-20 transition-all duration-300 overflow-hidden z-10">
       <button
         onClick={() => handleDeleteSubtask(index)}
-        className="w-full h-full text-xs text-white bg-red-600 hover:bg-red-700 opacity-0 group-hover:opacity-100 transition-all duration-300 text-end pr-2"
+        className="w-full h-full text-xs text-white bg-red-800 hover:bg-red-800 opacity-0 group-hover:opacity-100 transition-all duration-300 text-end pr-2"
       >
         Delete
       </button>
