@@ -1,24 +1,30 @@
-import express from "express";
-import cors from "cors";
-import pkg from '@prisma/client';
-const { PrismaClient } = pkg;
-import dotenv from "dotenv";
-import { authenticateToken, router as authRouter } from "./auth"; 
-import { setupSwagger } from "./swagger";
-
-
-dotenv.config();
-
-export const app = express();
-const prisma = new PrismaClient();
-
-app.use(cors());
-app.use(express.json());
-
-
-app.use(authRouter); 
-
-
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.app = void 0;
+const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
+const client_1 = require("@prisma/client");
+const dotenv_1 = __importDefault(require("dotenv"));
+const auth_1 = require("./auth");
+const swagger_1 = require("./swagger");
+dotenv_1.default.config();
+exports.app = (0, express_1.default)();
+const prisma = new client_1.PrismaClient();
+exports.app.use((0, cors_1.default)());
+exports.app.use(express_1.default.json());
+exports.app.use(auth_1.router);
 /**
  * @swagger
  * /todos:
@@ -66,28 +72,24 @@ app.use(authRouter);
  *       500:
  *         description: Server error
  */
-app.get("/todos", authenticateToken, async (req, res) => {
-  const userId = (req as any).user?.userId;
-
-  if (!userId) {
-     res.status(401).json({ error: "Unauthorized" });
-     return;
-  }
-
-  try {
-    const todos = await prisma.todo.findMany({
-      where: { userId },
-    });
-    res.json(todos);
-  } catch (err) {
-    console.error("Todo çekme hatası:", err);
-    res.status(500).json({ error: "Veriler alınamadı." });
-  }
-});
-
-
-
-
+exports.app.get("/todos", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.userId;
+    if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+    }
+    try {
+        const todos = yield prisma.todo.findMany({
+            where: { userId },
+        });
+        res.json(todos);
+    }
+    catch (err) {
+        console.error("Todo çekme hatası:", err);
+        res.status(500).json({ error: "Veriler alınamadı." });
+    }
+}));
 /**
  * @swagger
  * /todos:
@@ -135,46 +137,39 @@ app.get("/todos", authenticateToken, async (req, res) => {
  *       201:
  *         description: Todo created successfully
  */
-app.post("/todos", authenticateToken, async (req, res) => {
-  const { title, description, priority, deadline, situation, subtasks } = req.body;
-  const userId = (req as any).user?.userId;
-
-  if (!userId) {
-     res.status(401).json({ error: "User not authenticated." });
-     return;
-  }
-
-  if (!title || !description || !deadline || !priority || !situation) {
-     res.status(400).json({ error: "Please fill all fields!" });
-     return;
-  }
-
-  try {
-    const newTodo = await prisma.todo.create({
-      data: {
-        title,
-        description,
-        priority,
-        deadline: new Date(deadline),
-        situation,
-        subtasks,
-        userId,
-      },
-    });
-
-     res.status(201).json(newTodo);
-     return;
-  } catch (err) {
-    console.error("Post Error: ", err);
-     res.status(500).json({ error: "New to-do couldn't be added." }); 
-     return;
-  }
-
-});
-
-
-
-
+exports.app.post("/todos", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const { title, description, priority, deadline, situation, subtasks } = req.body;
+    const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.userId;
+    if (!userId) {
+        res.status(401).json({ error: "User not authenticated." });
+        return;
+    }
+    if (!title || !description || !deadline || !priority || !situation) {
+        res.status(400).json({ error: "Please fill all fields!" });
+        return;
+    }
+    try {
+        const newTodo = yield prisma.todo.create({
+            data: {
+                title,
+                description,
+                priority,
+                deadline: new Date(deadline),
+                situation,
+                subtasks,
+                userId,
+            },
+        });
+        res.status(201).json(newTodo);
+        return;
+    }
+    catch (err) {
+        console.error("Post Error: ", err);
+        res.status(500).json({ error: "New to-do couldn't be added." });
+        return;
+    }
+}));
 /**
  * @swagger
  * /todos/{id}:
@@ -193,20 +188,17 @@ app.post("/todos", authenticateToken, async (req, res) => {
  *       500:
  *         description: Error while deleting
  */
-
-app.delete("/todos/:id", async (req, res) => {
-  const id = parseInt(req.params.id);
-  try {
-    await prisma.todo.delete({ where: { id } });
-    res.status(204).end();
-  } catch (err) {
-    console.error("Silme hatası:", err);
-    res.status(500).json({ error: "Silinemedi" });
-  }
-});
-
-
-
+exports.app.delete("/todos/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = parseInt(req.params.id);
+    try {
+        yield prisma.todo.delete({ where: { id } });
+        res.status(204).end();
+    }
+    catch (err) {
+        console.error("Silme hatası:", err);
+        res.status(500).json({ error: "Silinemedi" });
+    }
+}));
 /**
  * @swagger
  * /details/{id}:
@@ -257,20 +249,19 @@ app.delete("/todos/:id", async (req, res) => {
  *       500:
  *         description: Failed to fetch todo details
  */
-app.get("/details/:id", async (req, res) => {
-  const id = parseInt(req.params.id);
-  const userId = (req as any).user?.userId;
-  try {
-    const todo = await prisma.todo.findUnique({ where: { id, userId, }, });
-    res.json(todo);
-  } catch (err) {
-    console.error("Detay getirme hatası:", err);
-    res.status(500).json({ error: "Detay alınamadı." });
-  }
-});
-
-
-
+exports.app.get("/details/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const id = parseInt(req.params.id);
+    const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.userId;
+    try {
+        const todo = yield prisma.todo.findUnique({ where: { id, userId, }, });
+        res.json(todo);
+    }
+    catch (err) {
+        console.error("Detay getirme hatası:", err);
+        res.status(500).json({ error: "Detay alınamadı." });
+    }
+}));
 /**
  * @swagger
  * /todos/{id}:
@@ -320,37 +311,32 @@ app.get("/details/:id", async (req, res) => {
  *       200:
  *         description: Todo updated successfully
  */
-
-app.put("/todos/:id", async (req, res) => {
-  const id = parseInt(req.params.id);
-  const { title, description, priority, deadline, situation, subtasks } = req.body;
-
-  if (!title || !description || !priority || !deadline) {
-    res.status(400).json({ error: "Tüm alanlar zorunlu." });
-    return;
-  }
-
-  try {
-    const updated = await prisma.todo.update({
-      where: { id },
-      data: {
-        title,
-        description,
-        priority,
-        deadline: new Date(deadline),
-        situation,
-        subtasks,
-      },
-    });
-    res.json(updated);
-  } catch (err) {
-    console.error("Güncelleme hatası:", err);
-    res.status(500).json({ error: "Güncellenemedi" });
-  }
-});
-
-
-
+exports.app.put("/todos/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = parseInt(req.params.id);
+    const { title, description, priority, deadline, situation, subtasks } = req.body;
+    if (!title || !description || !priority || !deadline) {
+        res.status(400).json({ error: "Tüm alanlar zorunlu." });
+        return;
+    }
+    try {
+        const updated = yield prisma.todo.update({
+            where: { id },
+            data: {
+                title,
+                description,
+                priority,
+                deadline: new Date(deadline),
+                situation,
+                subtasks,
+            },
+        });
+        res.json(updated);
+    }
+    catch (err) {
+        console.error("Güncelleme hatası:", err);
+        res.status(500).json({ error: "Güncellenemedi" });
+    }
+}));
 /**
  * @swagger
  * /me:
@@ -374,24 +360,21 @@ app.put("/todos/:id", async (req, res) => {
  *       500:
  *         description: Failed to fetch user info
  */
-
-app.get("/me", authenticateToken, async (req, res) => {
-  const userId = (req as any).user?.userId;
-
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
-
-    res.json({ username: user?.username });
-  } catch (err) {
-    res.status(500).json({ error: "Kullanıcı bilgisi alınamadı." });
-  }
-});
-
-setupSwagger(app);
-
+exports.app.get("/me", auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.userId;
+    try {
+        const user = yield prisma.user.findUnique({
+            where: { id: userId },
+        });
+        res.json({ username: user === null || user === void 0 ? void 0 : user.username });
+    }
+    catch (err) {
+        res.status(500).json({ error: "Kullanıcı bilgisi alınamadı." });
+    }
+}));
+(0, swagger_1.setupSwagger)(exports.app);
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`🚀 Server is working at http://localhost:${PORT}`);
+exports.app.listen(PORT, () => {
+    console.log(`🚀 Server is working at http://localhost:${PORT}`);
 });

@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/loginpage.tsx","./src/components/privateroute.tsx","./src/components/tododetails.tsx","./src/components/todolist.tsx","./src/lib/utils.ts"],"version":"5.7.3"}

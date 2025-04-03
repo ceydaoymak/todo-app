@@ -150,7 +150,6 @@ router.post("/login", async (req, res) => {
 
 
 
-
 const authenticateToken = (req: any, res: any, next: any) => {
   const token = req.header("Authorization")?.replace("Bearer ", "");
 
@@ -166,8 +165,9 @@ const authenticateToken = (req: any, res: any, next: any) => {
     }
 
     req.user = { userId: user.userId };
-        next();
+    next();
   });
+
 };
 
 export { router, authenticateToken };
