@@ -48,6 +48,12 @@ Here are some key views from the application:
  ➤ Todo Details & Subtasks
 ./screenshots/Subtasks.png
 
+ ➤ Add To Do
+./screenshots/AddToDo1.png
+
+ ➤ Add To Do For Smaller Devices
+./screenshots/AddToDo2.png
+
 
 ---
 
