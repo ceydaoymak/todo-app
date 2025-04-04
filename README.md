@@ -1,4 +1,5 @@
 TO DO APP
+
 A full-stack Todo application built as part of the Frontend Developer Long Term Intern Challenge Case 2.
 
 Frontend
