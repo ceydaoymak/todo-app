@@ -49,4 +49,14 @@ Here are some key views from the application:
 ./screenshots/Subtasks.png
 
 
+---
+
+Deployment
+
+This project is fully dockerized and can be run with a single command.  
+The setup includes frontend, backend (Node.js + Express), and a PostgreSQL instance.
+
+```bash
+docker compose up --build
+
 
